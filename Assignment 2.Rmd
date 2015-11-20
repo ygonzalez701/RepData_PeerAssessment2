@@ -2,7 +2,7 @@
 title: "Assignment2"
 author: "Yago Gonzalez"
 date: "Monday, November 16, 2015"
-output: html_document
+output: pdf_document
 ---
 
 
