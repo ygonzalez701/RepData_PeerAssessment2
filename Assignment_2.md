@@ -1,11 +1,6 @@
----
-title: "Assignment2"
-author: "Yago Gonzalez"
-date: "Monday, November 16, 2015"
-output:
-  html_document:
-    keep_md: yes
----
+# Assignment2
+Yago Gonzalez  
+Monday, November 16, 2015  
 
 
 # Weather Impact on US Population Health and the Economy - A Study from 1995 to 2011
@@ -19,7 +14,8 @@ weather can be catastrophic for the economy of a region affected by such weather
 **1\. Read the data**
 
 >The data file should be loaded into the working directory.
-```{r, cache=TRUE}
+
+```r
 data<-read.csv("C:/Users/Yago/Documents/Statistical Studies/The Data Science Track/Reproducible Research/Assignment 2/repdata-data-StormData.csv.bz2")
 ```
 
@@ -28,7 +24,8 @@ data<-read.csv("C:/Users/Yago/Documents/Statistical Studies/The Data Science Tra
 >Load the required R packages
 
 >Set the scientific notation
-```{r, warning=FALSE, message=FALSE}
+
+```r
 library("dplyr")
 library ("ggplot2")
 library("gridExtra")
@@ -36,12 +33,14 @@ options(scipen=999)
 ```
 
 **3\. Transform date**
-```{r}
+
+```r
 data$BGN_DATE<-as.numeric(format(as.Date(data$BGN_DATE, format = "%m/%d/%Y %H:%M:%S"), "%Y"))
 ```
 
 **4\. Transform Property multiplier**
-```{r}
+
+```r
 data$propMult[data$PROPDMGEXP == "K"] <- 1000
 data$propMult[data$PROPDMGEXP == "M"] <- 1000000
 data$propMult[data$PROPDMGEXP == ""] <- 1
@@ -66,7 +65,8 @@ data$newPROPDMG<-data$PROPDMG * data$propMult
 ```
 
 **5\. Transform Crop multiplier**
-```{r}
+
+```r
 data$cropMult[data$CROPDMGEXP == "M"] <- 1000000
 data$cropMult[data$CROPDMGEXP == "K"] <- 1000
 data$cropMult[data$CROPDMGEXP == "m"] <- 1000000
@@ -86,16 +86,20 @@ data$newDMG<-(data$newPROPDMG + data$newCROPDMG)/1000000000
 >As we can see in the Chart below by the change of color pattern in the bars from dark to light, 
 the collection of events increased dramatically around the year 1995.  In order to prevent skewing the results we will conduct our analysis using data starting in 1995.
 
-```{r, warning=FALSE, message=FALSE}
+
+```r
 ggplot(data, aes(BGN_DATE))+
      geom_histogram(aes(fill=..count..))+
      labs(title=("Events Observed From 1950 to 2011"))+
      labs(x="Year", y="Number of Events")
 ```
 
+![](Assignment_2_files/figure-html/unnamed-chunk-6-1.png) 
+
 >Because of this observation we will slice our database to include only observations ranging from the 
 1995 to 2011 periods.
-```{r}
+
+```r
 highData<-data[data$BGN_DATE>=1995,]
 ```
 
@@ -106,7 +110,8 @@ highData<-data[data$BGN_DATE>=1995,]
 >We will take a look at Fatalities and Injuries separately.  
 >We will focus on the top 15 events for each category
 
-```{r, fig.width=10}
+
+```r
 deaths <- aggregate(FATALITIES ~ EVTYPE, highData, sum)
 deaths <- deaths[order(-deaths$FATALITIES), ][1:15, ]
 deaths <- within(deaths, EVTYPE <- factor(x = EVTYPE, levels = deaths$EVTYPE))
@@ -134,13 +139,16 @@ plotInjuries<-qplot(EVTYPE, data=injuries, weight=INJURIES,
 grid.arrange(plotFatalities, plotInjuries, ncol = 2)
 ```
 
+![](Assignment_2_files/figure-html/unnamed-chunk-8-1.png) 
+
 >>As we can see from the charts above **Excessive Heat, Tornados and Floods** are the most dangerous weather events for the US Population.  Out of these three, **Tornados** are particulary dangerous as they account for the largest number of injuries and represent a large portion of fatalities during the studied period. 
 
 **2\. Weather Impact on the US Economy**
 
 >We will aggregate the data for property and crops in order to get a sense of total economic damage.  
 
-```{r, warning=FALSE,message=FALSE}
+
+```r
 ecoDamage <- highData[order(-highData$newDMG),][1:15, ]
 ecoDamage <- within(ecoDamage, EVTYPE <- factor(x = EVTYPE, levels = ecoDamage$EVTYPE))
 
@@ -153,5 +161,7 @@ qplot(EVTYPE, data=ecoDamage, weight=newDMG,
                                       hjust = 1)) + xlab("Weather Event") +
      ggtitle("Total Economic (Property and Crops) Damage by\n Severe Weather from 1995 - 2011")
 ```
+
+![](Assignment_2_files/figure-html/unnamed-chunk-9-1.png) 
 
 >>The chart above shows that **Floods** are, by far, the most damaging weather event to the US economy accounting for more than $100 billion in damages during the period studied.  That amount is 4 times higher than the impact of the second most damaging event **-Hurricane/Typhoon-**.
